@@ -20,52 +20,43 @@ const create_item = () => {
   item.classList.add('item');
   item.setAttribute('id', 'item-' + order);
   item.setAttribute('draggable', true);
-  item.addEventListener('dragstart', dragStart);
-  item.addEventListener('dragend', dragEnd);
+  item.addEventListener('dragstart', (event) => {
+    event.dataTransfer.setData("Text", event.target.id);
+  });
+  item.addEventListener('dragend', (event) => {
+    event.dataTransfer.clearData();
+  });
 
   const input = document.createElement('input');
   item.appendChild(input);
 
   const save_btn = document.createElement('button');
   save_btn.innerHTML = "Save";
-  save_btn.addEventListener('click', onclick);
+  save_btn.addEventListener('click', () => {
+    error.innerHTML = "";
+    const input = document.querySelector("input");
+    if(input !== ""){
+      const item = document.querySelector("#item-" + order)
+      order += 1;
+      item.innerHTML = input.value;
+      adding = false;
+    } else {
+      error.innerHTML = message;
+    }
+  });
   item.appendChild(save_btn);
 
   return item;
 };
 
-const dragStart = (event) => {
-  event.dataTransfer.setData("Text", event.target.id);
-}
-const dragEnd = (event) => {
-  event.dataTransfer.clearData();
-}
-
-const onDrop = (event) => {
-  const id = event.dataTransfer.getData("Text");
-  const item = document.getElementById(id);
-  event.target.appendChild(item);
-  event.preventDefault();
-}
-
-const onDragover = (event) => {
-  event.preventDefault();
-}
-
-const onclick = () => {
-  error.innerHTML = "";
-  const input = document.querySelector("input");
-  if(input !== ""){
-    const item = document.querySelector("#item-" + order)
-    order += 1;
-    item.innerHTML = input.value;
-    adding = false;
-  } else {
-    error.innerHTML = message;
-  }
-}
-
 document.querySelectorAll('.drop').forEach(element => {
-  element.addEventListener('drop', onDrop);
-  element.addEventListener('dragover', onDragover)
+  element.addEventListener('drop', (event) => {
+    const id = event.dataTransfer.getData("Text");
+    const item = document.getElementById(id);
+    event.target.appendChild(item);
+    event.preventDefault();
+  });
+  element.addEventListener('dragover', (event) => {
+    event.preventDefault();
+  })
 });
